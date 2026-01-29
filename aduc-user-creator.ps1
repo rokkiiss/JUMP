@@ -83,6 +83,9 @@ function Invoke-DirectorySync {
         if ($StatusLabel) {
             Update-Status -Label $StatusLabel -Message "Sync started." -Color ([System.Drawing.Color]::DarkGreen)
         }
+        if ($script:footerStatusLabel) {
+            $script:footerStatusLabel.Text = "Sync started at $([DateTime]::Now.ToString('g'))"
+        }
         if ($LogTextBox) {
             $LogTextBox.Text = "Sync started at $([DateTime]::Now.ToString('g'))"
         }
@@ -90,6 +93,9 @@ function Invoke-DirectorySync {
     catch {
         if ($StatusLabel) {
             Update-Status -Label $StatusLabel -Message "Sync failed: $($_.Exception.Message)" -Color ([System.Drawing.Color]::DarkRed)
+        }
+        if ($script:footerStatusLabel) {
+            $script:footerStatusLabel.Text = "Sync failed: $($_.Exception.Message)"
         }
         if ($LogTextBox) {
             $LogTextBox.Text = "Sync failed: $($_.Exception.Message)"
@@ -257,6 +263,31 @@ function Confirm-Action {
     )
 
     return $result -eq [System.Windows.Forms.DialogResult]::Yes
+}
+
+function Show-AboutDialog {
+    $dialog = New-Object System.Windows.Forms.Form
+    $dialog.Text = "About"
+    $dialog.Size = New-Object System.Drawing.Size(360, 220)
+    $dialog.StartPosition = "CenterParent"
+    $dialog.FormBorderStyle = "FixedDialog"
+    $dialog.MaximizeBox = $false
+    $dialog.MinimizeBox = $false
+
+    $label = New-Object System.Windows.Forms.Label
+    $label.Text = "JUMP 1.0`r`nLast Update 1/29/2026`r`n`r`nJUMP is a PowerShell Script tool.`r`n`r`nAuthor: Roger Anderson`r`nEmail: randerson@jaydien.com"
+    $label.Location = New-Object System.Drawing.Point(20, 20)
+    $label.Size = New-Object System.Drawing.Size(300, 120)
+    $label.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Regular)
+
+    $closeButton = New-Object System.Windows.Forms.Button
+    $closeButton.Text = "Close"
+    $closeButton.Location = New-Object System.Drawing.Point(240, 150)
+    $closeButton.Size = New-Object System.Drawing.Size(80, 28)
+    $closeButton.Add_Click({ $dialog.Close() })
+
+    $dialog.Controls.AddRange(@($label, $closeButton))
+    [void]$dialog.ShowDialog()
 }
 
 function Get-LocalIconImage {
@@ -492,6 +523,16 @@ $form.MinimumSize = New-Object System.Drawing.Size(800, 500)
 
 $font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Regular)
 
+$footerStatusLabel = New-Object System.Windows.Forms.Label
+$footerStatusLabel.Text = "Jaydien Network Solutions"
+$footerStatusLabel.Dock = "Bottom"
+$footerStatusLabel.Padding = New-Object System.Windows.Forms.Padding(10, 4, 10, 4)
+$footerStatusLabel.Height = 26
+$footerStatusLabel.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 9, [System.Drawing.FontStyle]::Regular)
+$footerStatusLabel.ForeColor = [System.Drawing.Color]::DimGray
+$footerStatusLabel.BackColor = [System.Drawing.Color]::WhiteSmoke
+$script:footerStatusLabel = $footerStatusLabel
+
 $mainMenuPanel = New-Object System.Windows.Forms.Panel
 $mainMenuPanel.Dock = "Fill"
 
@@ -526,6 +567,16 @@ $menuSyncButton.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 9, [S
 $menuSyncButton.Anchor = "Top,Right"
 $menuSyncButton.Add_Click({
     Invoke-DirectorySync
+})
+
+$menuAboutButton = New-Object System.Windows.Forms.Button
+$menuAboutButton.Text = "About"
+$menuAboutButton.Location = New-Object System.Drawing.Point(740, 20)
+$menuAboutButton.Size = New-Object System.Drawing.Size(80, 30)
+$menuAboutButton.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 9, [System.Drawing.FontStyle]::Regular)
+$menuAboutButton.Anchor = "Top,Right"
+$menuAboutButton.Add_Click({
+    Show-AboutDialog
 })
 
 $menuGrid = New-Object System.Windows.Forms.TableLayoutPanel
@@ -1628,9 +1679,11 @@ $menuGrid.Controls.Add($dummyTileButton4, 3, 1)
 $mainMenuPanel.Controls.AddRange(@(
     $menuGrid,
     $menuTitleLabel,
-    $menuSyncButton
+    $menuSyncButton,
+    $menuAboutButton
 ))
 
+$form.Controls.Add($footerStatusLabel)
 $form.Controls.Add($mainMenuPanel)
 $form.Controls.Add($createPanel)
 $form.Controls.Add($terminatePanel)
