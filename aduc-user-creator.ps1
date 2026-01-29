@@ -509,6 +509,13 @@ $menuTitleLabel.Padding = New-Object System.Windows.Forms.Padding(20, 20, 0, 10)
 $menuTitleLabel.AutoSize = $true
 $menuTitleLabel.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 14, [System.Drawing.FontStyle]::Regular)
 
+$watermarkPictureBox = New-Object System.Windows.Forms.PictureBox
+$watermarkPictureBox.Location = New-Object System.Drawing.Point(0, 0)
+$watermarkPictureBox.Size = New-Object System.Drawing.Size($mainMenuPanel.Width, 160)
+$watermarkPictureBox.SizeMode = "Zoom"
+$watermarkPictureBox.BackColor = [System.Drawing.Color]::Transparent
+$watermarkPictureBox.Anchor = "Top,Left,Right"
+
 $menuGrid = New-Object System.Windows.Forms.TableLayoutPanel
 $menuGrid.ColumnCount = 4
 $menuGrid.RowCount = 2
@@ -522,6 +529,10 @@ $menuGrid.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Window
 $menuGrid.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 50)))
 $menuGrid.BackColor = [System.Drawing.Color]::Transparent
 $menuGrid.Parent = $mainMenuPanel
+
+$mainMenuPanel.Add_Resize({
+    $watermarkPictureBox.Size = New-Object System.Drawing.Size($mainMenuPanel.Width, 160)
+})
 
 $createTileButton = New-Object System.Windows.Forms.Button
 $createTileButton.Text = "Create User"
@@ -1567,6 +1578,7 @@ $menuGrid.Controls.Add($dummyTileButton2, 1, 1)
 $menuGrid.Controls.Add($dummyTileButton3, 2, 1)
 $menuGrid.Controls.Add($dummyTileButton4, 3, 1)
 $mainMenuPanel.Controls.AddRange(@(
+    $watermarkPictureBox,
     $menuGrid,
     $menuTitleLabel
 ))
@@ -1599,8 +1611,8 @@ $form.Add_Shown({
 
     $logoImage = Get-LocalImage -Path "C:\\JUMP\\logo.png"
     if ($logoImage) {
-        $mainMenuPanel.BackgroundImage = $logoImage
-        $mainMenuPanel.BackgroundImageLayout = "Zoom"
+        $watermarkPictureBox.Image = $logoImage
+        $watermarkPictureBox.SendToBack()
     }
 
     Register-ButtonIcon -Button $createTileButton -Path "C:\\JUMP\\enableuser.ico"
