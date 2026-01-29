@@ -384,7 +384,7 @@ function Show-Panel {
 
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "J.U.M.P. Jaydien User Management Platform"
-$form.Size = New-Object System.Drawing.Size(960, 520)
+$form.Size = New-Object System.Drawing.Size(960, 560)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedDialog"
 $form.MaximizeBox = $false
@@ -424,7 +424,7 @@ $menuTitleLabel.Font = New-Object System.Drawing.Font("Segoe UI", 14, [System.Dr
 $createTileButton = New-Object System.Windows.Forms.Button
 $createTileButton.Text = "Create User"
 $createTileButton.Location = New-Object System.Drawing.Point(80, 120)
-$createTileButton.Size = New-Object System.Drawing.Size(160, 180)
+$createTileButton.Size = New-Object System.Drawing.Size(100, 100)
 $createTileButton.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
 $createTileButton.TextImageRelation = "ImageAboveText"
 $createTileButton.ImageAlign = "MiddleCenter"
@@ -432,8 +432,8 @@ $createTileButton.TextAlign = "BottomCenter"
 
 $terminateTileButton = New-Object System.Windows.Forms.Button
 $terminateTileButton.Text = "Terminate User"
-$terminateTileButton.Location = New-Object System.Drawing.Point(380, 120)
-$terminateTileButton.Size = New-Object System.Drawing.Size(160, 180)
+$terminateTileButton.Location = New-Object System.Drawing.Point(220, 120)
+$terminateTileButton.Size = New-Object System.Drawing.Size(100, 100)
 $terminateTileButton.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
 $terminateTileButton.TextImageRelation = "ImageAboveText"
 $terminateTileButton.ImageAlign = "MiddleCenter"
@@ -441,8 +441,8 @@ $terminateTileButton.TextAlign = "BottomCenter"
 
 $reenableTileButton = New-Object System.Windows.Forms.Button
 $reenableTileButton.Text = "Re-enable User"
-$reenableTileButton.Location = New-Object System.Drawing.Point(680, 120)
-$reenableTileButton.Size = New-Object System.Drawing.Size(160, 180)
+$reenableTileButton.Location = New-Object System.Drawing.Point(360, 120)
+$reenableTileButton.Size = New-Object System.Drawing.Size(100, 100)
 $reenableTileButton.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
 $reenableTileButton.TextImageRelation = "ImageAboveText"
 $reenableTileButton.ImageAlign = "MiddleCenter"
@@ -450,29 +450,71 @@ $reenableTileButton.TextAlign = "BottomCenter"
 
 $resetTileButton = New-Object System.Windows.Forms.Button
 $resetTileButton.Text = "Reset Password"
-$resetTileButton.Location = New-Object System.Drawing.Point(380, 320)
-$resetTileButton.Size = New-Object System.Drawing.Size(160, 80)
+$resetTileButton.Location = New-Object System.Drawing.Point(500, 120)
+$resetTileButton.Size = New-Object System.Drawing.Size(100, 100)
 $resetTileButton.Font = New-Object System.Drawing.Font("Segoe UI", 11, [System.Drawing.FontStyle]::Bold)
+$resetTileButton.TextImageRelation = "ImageAboveText"
+$resetTileButton.ImageAlign = "MiddleCenter"
+$resetTileButton.TextAlign = "BottomCenter"
+
+$dummyTileButton1 = New-Object System.Windows.Forms.Button
+$dummyTileButton1.Text = "Under Development"
+$dummyTileButton1.Location = New-Object System.Drawing.Point(80, 250)
+$dummyTileButton1.Size = New-Object System.Drawing.Size(100, 100)
+$dummyTileButton1.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Bold)
+$dummyTileButton1.Enabled = $false
+$dummyTileButton1.BackColor = [System.Drawing.Color]::LightGray
+
+$dummyTileButton2 = New-Object System.Windows.Forms.Button
+$dummyTileButton2.Text = "Under Development"
+$dummyTileButton2.Location = New-Object System.Drawing.Point(220, 250)
+$dummyTileButton2.Size = New-Object System.Drawing.Size(100, 100)
+$dummyTileButton2.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Bold)
+$dummyTileButton2.Enabled = $false
+$dummyTileButton2.BackColor = [System.Drawing.Color]::LightGray
+
+$dummyTileButton3 = New-Object System.Windows.Forms.Button
+$dummyTileButton3.Text = "Under Development"
+$dummyTileButton3.Location = New-Object System.Drawing.Point(360, 250)
+$dummyTileButton3.Size = New-Object System.Drawing.Size(100, 100)
+$dummyTileButton3.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Bold)
+$dummyTileButton3.Enabled = $false
+$dummyTileButton3.BackColor = [System.Drawing.Color]::LightGray
+
+$dummyTileButton4 = New-Object System.Windows.Forms.Button
+$dummyTileButton4.Text = "Under Development"
+$dummyTileButton4.Location = New-Object System.Drawing.Point(500, 250)
+$dummyTileButton4.Size = New-Object System.Drawing.Size(100, 100)
+$dummyTileButton4.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Bold)
+$dummyTileButton4.Enabled = $false
+$dummyTileButton4.BackColor = [System.Drawing.Color]::LightGray
 
 $createTileButton.Add_Click({
     Show-Panel -PanelToShow $createPanel -PanelToHide1 $mainMenuPanel -PanelToHide2 $terminatePanel
     $reenablePanel.Visible = $false
+    $resetPanel.Visible = $false
+    Load-OUs -ComboBox $ouComboBox -StatusLabel $createStatusLabel
 })
 
 $terminateTileButton.Add_Click({
     Show-Panel -PanelToShow $terminatePanel -PanelToHide1 $mainMenuPanel -PanelToHide2 $createPanel
     $reenablePanel.Visible = $false
+    $resetPanel.Visible = $false
+    Load-OUs -ComboBox $terminateOuComboBox -StatusLabel $terminateStatusLabel
 })
 
 $reenableTileButton.Add_Click({
     Show-Panel -PanelToShow $reenablePanel -PanelToHide1 $mainMenuPanel -PanelToHide2 $terminatePanel
     $createPanel.Visible = $false
+    $resetPanel.Visible = $false
+    Load-DisabledOUs -ComboBox $reenableOuComboBox -StatusLabel $reenableStatusLabel
 })
 
 $resetTileButton.Add_Click({
     Show-Panel -PanelToShow $resetPanel -PanelToHide1 $mainMenuPanel -PanelToHide2 $reenablePanel
     $createPanel.Visible = $false
     $terminatePanel.Visible = $false
+    Load-OUs -ComboBox $resetOuComboBox -StatusLabel $resetStatusLabel
 })
 
 $backToMenuFromCreate = New-Object System.Windows.Forms.Button
@@ -1407,7 +1449,11 @@ $mainMenuPanel.Controls.AddRange(@(
     $createTileButton,
     $terminateTileButton,
     $reenableTileButton,
-    $resetTileButton
+    $resetTileButton,
+    $dummyTileButton1,
+    $dummyTileButton2,
+    $dummyTileButton3,
+    $dummyTileButton4
 ))
 
 $form.Controls.Add($mainMenuPanel)
@@ -1436,17 +1482,17 @@ $form.Add_Shown({
     Load-DisabledOUs -ComboBox $reenableOuComboBox -StatusLabel $reenableStatusLabel
     Load-OUs -ComboBox $resetOuComboBox -StatusLabel $resetStatusLabel
 
-$createThumbnail = Get-LocalIconImage -Path "C:\\JUMP\\enableuser.ico" -Width 160 -Height 180
+$createThumbnail = Get-LocalIconImage -Path "C:\\JUMP\\enableuser.ico" -Width 100 -Height 100
     if ($createThumbnail) {
         $createTileButton.Image = $createThumbnail
     }
 
-$terminateThumbnail = Get-LocalIconImage -Path "C:\\JUMP\\termuser.ico" -Width 160 -Height 180
+$terminateThumbnail = Get-LocalIconImage -Path "C:\\JUMP\\termuser.ico" -Width 100 -Height 100
     if ($terminateThumbnail) {
         $terminateTileButton.Image = $terminateThumbnail
     }
 
-$reenableThumbnail = Get-LocalIconImage -Path "C:\\JUMP\\reenable.ico" -Width 160 -Height 180
+$reenableThumbnail = Get-LocalIconImage -Path "C:\\JUMP\\reenable.ico" -Width 100 -Height 100
     if ($reenableThumbnail) {
         $reenableTileButton.Image = $reenableThumbnail
     }
