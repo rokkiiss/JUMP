@@ -13,6 +13,8 @@ $script:terminateUserMap = @{}
 $script:reenableUserMap = @{}
 $script:lastGeneratedCredentials = $null
 $script:disabledOuDisplayMap = @{}
+$script:terminateUserDisplayNames = @()
+$script:reenableUserDisplayNames = @()
 
 function Get-SamAccountName {
     param(
@@ -582,6 +584,17 @@ $refreshTerminateOuButton.Location = New-Object System.Drawing.Point(550, 56)
 $refreshTerminateOuButton.Size = New-Object System.Drawing.Size(90, 28)
 $refreshTerminateOuButton.Font = $font
 
+$terminateSearchLabel = New-Object System.Windows.Forms.Label
+$terminateSearchLabel.Text = "Search"
+$terminateSearchLabel.Location = New-Object System.Drawing.Point(20, 100)
+$terminateSearchLabel.Size = New-Object System.Drawing.Size(120, 24)
+$terminateSearchLabel.Font = $font
+
+$terminateSearchTextBox = New-Object System.Windows.Forms.TextBox
+$terminateSearchTextBox.Location = New-Object System.Drawing.Point(180, 98)
+$terminateSearchTextBox.Size = New-Object System.Drawing.Size(360, 24)
+$terminateSearchTextBox.Font = $font
+
 $userListBox = New-Object System.Windows.Forms.ListBox
 $userListBox.Location = New-Object System.Drawing.Point(20, 140)
 $userListBox.Size = New-Object System.Drawing.Size(620, 180)
@@ -631,6 +644,17 @@ $refreshReenableOuButton.Text = "Refresh OUs"
 $refreshReenableOuButton.Location = New-Object System.Drawing.Point(550, 56)
 $refreshReenableOuButton.Size = New-Object System.Drawing.Size(90, 28)
 $refreshReenableOuButton.Font = $font
+
+$reenableSearchLabel = New-Object System.Windows.Forms.Label
+$reenableSearchLabel.Text = "Search"
+$reenableSearchLabel.Location = New-Object System.Drawing.Point(20, 100)
+$reenableSearchLabel.Size = New-Object System.Drawing.Size(120, 24)
+$reenableSearchLabel.Font = $font
+
+$reenableSearchTextBox = New-Object System.Windows.Forms.TextBox
+$reenableSearchTextBox.Location = New-Object System.Drawing.Point(180, 98)
+$reenableSearchTextBox.Size = New-Object System.Drawing.Size(360, 24)
+$reenableSearchTextBox.Font = $font
 
 $reenableUserListBox = New-Object System.Windows.Forms.ListBox
 $reenableUserListBox.Location = New-Object System.Drawing.Point(20, 140)
@@ -719,6 +743,7 @@ function Update-CreateButtonState {
 function Load-UsersFromOu {
     $userListBox.Items.Clear()
     $script:terminateUserMap = @{}
+    $script:terminateUserDisplayNames = @()
 
     if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
         Update-Status -Label $terminateStatusLabel -Message "ActiveDirectory module not available." -Color ([System.Drawing.Color]::DarkRed)
@@ -744,9 +769,10 @@ function Load-UsersFromOu {
     foreach ($user in $users) {
         $display = $user.Name
         $script:terminateUserMap[$display] = $user
-        [void]$userListBox.Items.Add($display)
+        $script:terminateUserDisplayNames += $display
     }
 
+    Filter-TerminateUserList
     Update-Status -Label $terminateStatusLabel -Message "Loaded $($users.Count) users from OU." -Color ([System.Drawing.Color]::DarkGreen)
     $terminatePreviewTextBox.Text = "Loaded $($users.Count) users from $ouDn"
 }
@@ -754,6 +780,7 @@ function Load-UsersFromOu {
 function Load-ReenableUsersFromOu {
     $reenableUserListBox.Items.Clear()
     $script:reenableUserMap = @{}
+    $script:reenableUserDisplayNames = @()
 
     if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
         Update-Status -Label $reenableStatusLabel -Message "ActiveDirectory module not available." -Color ([System.Drawing.Color]::DarkRed)
@@ -779,11 +806,32 @@ function Load-ReenableUsersFromOu {
     foreach ($user in $users) {
         $display = $user.Name
         $script:reenableUserMap[$display] = $user
-        [void]$reenableUserListBox.Items.Add($display)
+        $script:reenableUserDisplayNames += $display
     }
 
+    Filter-ReenableUserList
     Update-Status -Label $reenableStatusLabel -Message "Loaded $($users.Count) users from OU." -Color ([System.Drawing.Color]::DarkGreen)
     $reenableLogTextBox.Text = "Loaded $($users.Count) users from $ouDn"
+}
+
+function Filter-TerminateUserList {
+    $filterText = $terminateSearchTextBox.Text.Trim().ToLowerInvariant()
+    $userListBox.Items.Clear()
+    foreach ($display in $script:terminateUserDisplayNames) {
+        if ([string]::IsNullOrWhiteSpace($filterText) -or $display.ToLowerInvariant().Contains($filterText)) {
+            [void]$userListBox.Items.Add($display)
+        }
+    }
+}
+
+function Filter-ReenableUserList {
+    $filterText = $reenableSearchTextBox.Text.Trim().ToLowerInvariant()
+    $reenableUserListBox.Items.Clear()
+    foreach ($display in $script:reenableUserDisplayNames) {
+        if ([string]::IsNullOrWhiteSpace($filterText) -or $display.ToLowerInvariant().Contains($filterText)) {
+            [void]$reenableUserListBox.Items.Add($display)
+        }
+    }
 }
 
 $firstNameTextBox.Add_TextChanged({
@@ -806,8 +854,16 @@ $terminateOuComboBox.Add_TextChanged({
     Load-UsersFromOu
 })
 
+$terminateSearchTextBox.Add_TextChanged({
+    Filter-TerminateUserList
+})
+
 $reenableOuComboBox.Add_TextChanged({
     Load-ReenableUsersFromOu
+})
+
+$reenableSearchTextBox.Add_TextChanged({
+    Filter-ReenableUserList
 })
 
 $refreshTerminateOuButton.Add_Click({
@@ -1128,6 +1184,8 @@ $terminatePanel.Controls.AddRange(@(
     $terminateOuLabel,
     $terminateOuComboBox,
     $refreshTerminateOuButton,
+    $terminateSearchLabel,
+    $terminateSearchTextBox,
     $userListBox,
     $terminateButton,
     $terminatePreviewLabel,
@@ -1140,6 +1198,8 @@ $reenablePanel.Controls.AddRange(@(
     $reenableOuLabel,
     $reenableOuComboBox,
     $refreshReenableOuButton,
+    $reenableSearchLabel,
+    $reenableSearchTextBox,
     $reenableUserListBox,
     $reenableButton,
     $resetPasswordButton,
