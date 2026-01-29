@@ -338,9 +338,20 @@ function New-RandomPassword {
     )
 
     $chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*"
-    $random = New-Object System.Random
+    if (-not $script:PasswordRng) {
+        $script:PasswordRng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+    }
+
+    $charArray = $chars.ToCharArray()
+    $maxExclusive = $charArray.Length
+    $limit = [uint32]::MaxValue - ([uint32]::MaxValue % $maxExclusive)
+    $bytes = New-Object byte[] 4
     $passwordChars = for ($i = 0; $i -lt $Length; $i++) {
-        $chars[$random.Next(0, $chars.Length)]
+        do {
+            $script:PasswordRng.GetBytes($bytes)
+            $value = [System.BitConverter]::ToUInt32($bytes, 0)
+        } while ($value -ge $limit)
+        $charArray[$value % $maxExclusive]
     }
     return -join $passwordChars
 }
