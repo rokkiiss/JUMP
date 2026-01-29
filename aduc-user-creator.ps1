@@ -511,7 +511,7 @@ $menuTitleLabel.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 14, [
 
 $watermarkPictureBox = New-Object System.Windows.Forms.PictureBox
 $watermarkPictureBox.Dock = "Top"
-$watermarkPictureBox.Height = 140
+$watermarkPictureBox.Height = 90
 $watermarkPictureBox.SizeMode = "Zoom"
 $watermarkPictureBox.BackColor = [System.Drawing.Color]::Transparent
 $watermarkPictureBox.Margin = New-Object System.Windows.Forms.Padding(10, 10, 10, 0)
