@@ -218,6 +218,22 @@ function Show-CredentialsDialog {
     [void]$dialog.ShowDialog()
 }
 
+function Confirm-Action {
+    param(
+        [string]$Message,
+        [string]$Title
+    )
+
+    $result = [System.Windows.Forms.MessageBox]::Show(
+        $Message,
+        $Title,
+        [System.Windows.Forms.MessageBoxButtons]::YesNo,
+        [System.Windows.Forms.MessageBoxIcon]::Question
+    )
+
+    return $result -eq [System.Windows.Forms.DialogResult]::Yes
+}
+
 function Get-LocalIconImage {
     param(
         [string]$Path,
@@ -1051,6 +1067,11 @@ $createButton.Add_Click({
         return
     }
 
+    if (-not (Confirm-Action -Message "Create user $first $last in $ouDn?" -Title "Confirm Create User")) {
+        Update-Status -Label $createStatusLabel -Message "Create user cancelled." -Color ([System.Drawing.Color]::DarkSlateGray)
+        return
+    }
+
     $sam = Get-SamAccountName -FirstName $first -LastName $last
     $mailNickname = $sam
     $upn = "$sam@$domain"
@@ -1138,6 +1159,12 @@ $terminateButton.Add_Click({
         return
     }
 
+    $selectedUsers = $userListBox.SelectedItems -join ', '
+    if (-not (Confirm-Action -Message "Terminate selected users?`r`n$selectedUsers" -Title "Confirm Termination")) {
+        Update-Status -Label $terminateStatusLabel -Message "Termination cancelled." -Color ([System.Drawing.Color]::DarkSlateGray)
+        return
+    }
+
     $failed = @()
     $completed = @()
     foreach ($display in $userListBox.SelectedItems) {
@@ -1195,6 +1222,12 @@ $reenableButton.Add_Click({
 
     if ($reenableUserListBox.SelectedItems.Count -eq 0) {
         Update-Status -Label $reenableStatusLabel -Message "Select at least one user to re-enable." -Color ([System.Drawing.Color]::DarkRed)
+        return
+    }
+
+    $selectedUsers = $reenableUserListBox.SelectedItems -join ', '
+    if (-not (Confirm-Action -Message "Re-enable selected users?`r`n$selectedUsers" -Title "Confirm Re-enable")) {
+        Update-Status -Label $reenableStatusLabel -Message "Re-enable cancelled." -Color ([System.Drawing.Color]::DarkSlateGray)
         return
     }
 
@@ -1258,6 +1291,12 @@ $resetPasswordButton.Add_Click({
 
     if ($resetUserListBox.SelectedItems.Count -eq 0) {
         Update-Status -Label $resetStatusLabel -Message "Select at least one user to reset." -Color ([System.Drawing.Color]::DarkRed)
+        return
+    }
+
+    $selectedUsers = $resetUserListBox.SelectedItems -join ', '
+    if (-not (Confirm-Action -Message "Reset passwords for selected users?`r`n$selectedUsers" -Title "Confirm Password Reset")) {
+        Update-Status -Label $resetStatusLabel -Message "Password reset cancelled." -Color ([System.Drawing.Color]::DarkSlateGray)
         return
     }
 
