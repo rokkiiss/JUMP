@@ -273,6 +273,40 @@ function Get-LocalImage {
     }
 }
 
+function New-FadedImage {
+    param(
+        [System.Drawing.Image]$Image,
+        [float]$Alpha = 0.2
+    )
+
+    if (-not $Image) {
+        return $null
+    }
+
+    $clampedAlpha = [Math]::Max(0.0, [Math]::Min(1.0, $Alpha))
+    try {
+        $fadedBitmap = New-Object System.Drawing.Bitmap($Image.Width, $Image.Height)
+        $graphics = [System.Drawing.Graphics]::FromImage($fadedBitmap)
+        $graphics.Clear([System.Drawing.Color]::Transparent)
+        $colorMatrix = New-Object System.Drawing.Imaging.ColorMatrix
+        $colorMatrix.Matrix00 = 1
+        $colorMatrix.Matrix11 = 1
+        $colorMatrix.Matrix22 = 1
+        $colorMatrix.Matrix33 = $clampedAlpha
+        $colorMatrix.Matrix44 = 1
+        $imageAttributes = New-Object System.Drawing.Imaging.ImageAttributes
+        $imageAttributes.SetColorMatrix($colorMatrix)
+        $rect = New-Object System.Drawing.Rectangle(0, 0, $Image.Width, $Image.Height)
+        $graphics.DrawImage($Image, $rect, 0, 0, $Image.Width, $Image.Height, [System.Drawing.GraphicsUnit]::Pixel, $imageAttributes)
+        $graphics.Dispose()
+        $imageAttributes.Dispose()
+        return $fadedBitmap
+    }
+    catch {
+        return $null
+    }
+}
+
 function Set-ButtonIcon {
     param(
         [System.Windows.Forms.Button]$Button,
@@ -511,10 +545,10 @@ $menuTitleLabel.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 14, [
 
 $watermarkPictureBox = New-Object System.Windows.Forms.PictureBox
 $watermarkPictureBox.Dock = "Top"
-$watermarkPictureBox.Height = 90
-$watermarkPictureBox.SizeMode = "Zoom"
+$watermarkPictureBox.Height = 120
+$watermarkPictureBox.SizeMode = "StretchImage"
 $watermarkPictureBox.BackColor = [System.Drawing.Color]::Transparent
-$watermarkPictureBox.Margin = New-Object System.Windows.Forms.Padding(10, 10, 10, 0)
+$watermarkPictureBox.Margin = New-Object System.Windows.Forms.Padding(0, 0, 0, 0)
 
 $menuGrid = New-Object System.Windows.Forms.TableLayoutPanel
 $menuGrid.ColumnCount = 4
@@ -1607,8 +1641,12 @@ $form.Add_Shown({
 
     $logoImage = Get-LocalImage -Path "C:\\JUMP\\logo.png"
     if ($logoImage) {
-        $watermarkPictureBox.Image = $logoImage
-        $watermarkPictureBox.SendToBack()
+        $fadedLogo = New-FadedImage -Image $logoImage -Alpha 0.2
+        $logoImage.Dispose()
+        if ($fadedLogo) {
+            $watermarkPictureBox.Image = $fadedLogo
+            $watermarkPictureBox.SendToBack()
+        }
     }
 
     Register-ButtonIcon -Button $createTileButton -Path "C:\\JUMP\\enableuser.ico"
